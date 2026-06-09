@@ -60,6 +60,7 @@
   -webkit-text-fill-color: transparent;
   letter-spacing: 0.05em;
   user-select: none;
+  cursor: pointer;
 }
 
 .sidebar__close-btn {

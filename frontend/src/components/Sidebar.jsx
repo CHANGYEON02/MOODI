@@ -1,4 +1,4 @@
-import { NavLink } from 'react-router-dom';
+import { NavLink, Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import '../styles/sidebar.css';
 
@@ -23,9 +23,14 @@ export default function Sidebar({ isOpen, onClose }) {
         aria-label="메인 네비게이션"
       >
         <div className="sidebar__header">
-          <span className="sidebar__logo">
+          <Link
+            to="/"
+            className="sidebar__logo"
+            onClick={onClose}
+            style={{ textDecoration: 'none' }}
+          >
             Moo<span className="sidebar__logo-accent">DI</span>
-          </span>
+          </Link>
           <button
             className="sidebar__close-btn"
             onClick={onClose}

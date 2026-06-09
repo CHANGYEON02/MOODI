@@ -68,9 +68,10 @@ export default function LibraryPage() {
                 ? `https://img.youtube.com/vi/${item.youtube.video_id}/mqdefault.jpg`
                 : null);
 
-            // Construct fallback play URL if direct video URL is not saved
-            const playUrl = item.youtube?.url || 
-              `https://www.youtube.com/results?search_query=${encodeURIComponent(item.title + ' ' + item.artist)}`;
+            // Construct fallback play URL if direct video ID is not saved
+            const playUrl = (item.youtube?.video_id && item.youtube.video_id !== 'None' && item.youtube.video_id !== 'null')
+              ? `https://www.youtube.com/watch?v=${item.youtube.video_id}`
+              : `https://www.youtube.com/results?search_query=${encodeURIComponent(item.title + ' ' + item.artist)}`;
 
             return (
               <div className="library-item" key={item.id}>

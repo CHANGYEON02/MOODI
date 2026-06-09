@@ -21,10 +21,11 @@ export default function MusicCard({ track, emotionTag, onMixClick }) {
       ? `https://img.youtube.com/vi/${track.youtube.video_id}/mqdefault.jpg`
       : null);
 
-  // If specific video URL is not found (e.g. YouTube quota limit or API error),
+  // If specific video ID is not found (e.g. YouTube quota limit or API error),
   // fallback to search query URL so that user can still play the song.
-  const playUrl = track.youtube?.url || 
-    `https://www.youtube.com/results?search_query=${encodeURIComponent(track.title + ' ' + track.artist)}`;
+  const playUrl = (track.youtube?.video_id && track.youtube.video_id !== 'None' && track.youtube.video_id !== 'null')
+    ? `https://www.youtube.com/watch?v=${track.youtube.video_id}`
+    : `https://www.youtube.com/results?search_query=${encodeURIComponent(track.title + ' ' + track.artist)}`;
 
   return (
     <div className="music-card" id={`music-card-${track.title.replace(/\s+/g, '-')}`}>
