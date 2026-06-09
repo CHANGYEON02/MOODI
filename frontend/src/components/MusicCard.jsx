@@ -13,14 +13,7 @@ export default function MusicCard({ track, emotionTag, onMixClick }) {
       setShowLoginModal(true);
       return;
     }
-    const result = addToLibrary(track, emotionTag);
-    // Toast notification could be added here
-  };
-
-  const handlePlay = () => {
-    if (track.youtube?.url) {
-      window.open(track.youtube.url, '_blank', 'noopener,noreferrer');
-    }
+    addToLibrary(track, emotionTag);
   };
 
   const thumbnailUrl = track.image || 
@@ -42,13 +35,26 @@ export default function MusicCard({ track, emotionTag, onMixClick }) {
         <p className="music-card__artist">{track.artist}</p>
         <p className="music-card__reason">{track.reason}</p>
         <div className="music-card__actions">
-          <button
-            className="music-card__action-btn music-card__action-btn--play"
-            onClick={handlePlay}
-            type="button"
-          >
-            ▶ 재생
-          </button>
+          {track.youtube?.url ? (
+            <a
+              className="music-card__action-btn music-card__action-btn--play"
+              href={track.youtube.url}
+              target="_blank"
+              rel="noopener noreferrer"
+              style={{ textDecoration: 'none' }}
+            >
+              ▶ 재생
+            </a>
+          ) : (
+            <button
+              className="music-card__action-btn music-card__action-btn--play"
+              disabled
+              style={{ opacity: 0.5, cursor: 'not-allowed' }}
+              type="button"
+            >
+              ▶ 재생
+            </button>
+          )}
           <button
             className={`music-card__action-btn music-card__action-btn--save${saved ? ' music-card__action-btn--saved' : ''}`}
             onClick={handleSave}

@@ -21,12 +21,6 @@ export default function LibraryPage() {
     setConfirmDelete(null);
   };
 
-  const handlePlay = (track) => {
-    if (track.youtube?.url) {
-      window.open(track.youtube.url, '_blank', 'noopener,noreferrer');
-    }
-  };
-
   const formatDate = (isoString) => {
     const date = new Date(isoString);
     return `${date.getFullYear()}.${String(date.getMonth() + 1).padStart(2, '0')}.${String(date.getDate()).padStart(2, '0')}`;
@@ -98,13 +92,26 @@ export default function LibraryPage() {
                     </span>
                   </div>
                   <div className="library-item__actions">
-                    <button
-                      className="library-item__action-btn library-item__action-btn--play"
-                      onClick={() => handlePlay(item)}
-                      type="button"
-                    >
-                      ▶ 재생
-                    </button>
+                    {item.youtube?.url ? (
+                      <a
+                        className="library-item__action-btn library-item__action-btn--play"
+                        href={item.youtube.url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        style={{ textDecoration: 'none' }}
+                      >
+                        ▶ 재생
+                      </a>
+                    ) : (
+                      <button
+                        className="library-item__action-btn library-item__action-btn--play"
+                        disabled
+                        style={{ opacity: 0.5, cursor: 'not-allowed' }}
+                        type="button"
+                      >
+                        ▶ 재생
+                      </button>
+                    )}
                     <button
                       className="library-item__action-btn library-item__action-btn--delete"
                       onClick={() => handleDelete(item.id)}
