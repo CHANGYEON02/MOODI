@@ -1,0 +1,28 @@
+# OS files
+.DS_Store
+Thumbs.db
+
+# Frontend dependencies and builds
+frontend/node_modules/
+frontend/dist/
+frontend/.env
+frontend/.env.local
+frontend/.env.development.local
+frontend/.env.test.local
+frontend/.env.production.local
+
+# Backend virtual environment & python cache
+backend/.venv/
+backend/__pycache__/
+backend/services/__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.ipynb_checkpoints
+
+# Security Sensitive Files (CRITICAL)
+backend/.env
+
+# AI Agent files
+.gemini/
+antigravity/

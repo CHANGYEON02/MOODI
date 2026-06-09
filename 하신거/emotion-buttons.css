@@ -1,0 +1,227 @@
+/* =============================================
+   EmotionButtons — emotion-buttons.css
+   ============================================= */
+
+@import url("https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700&family=Gowun+Dodum&display=swap");
+
+/* ---- 기본 변수 ---- */
+:root {
+  --eb-radius: 16px;
+  --eb-radius-sm: 10px;
+  --eb-gap: 12px;
+  --eb-transition: 0.18s cubic-bezier(0.34, 1.56, 0.64, 1);
+
+  /* 감정별 컬러 팔레트 */
+  --eb-joy:      #FFF3C4, #F5A623, #7A5000;
+  --eb-sadness:  #D6E8FF, #3B82F6, #1A3A6B;
+  --eb-anger:    #FFE4E0, #EF4444, #7A1F1F;
+  --eb-anxiety:  #EDE9FE, #8B5CF6, #3B1F6B;
+  --eb-tired:    #E2E8F0, #64748B, #1E293B;
+  --eb-lonely:   #FFF1E6, #F97316, #7A3A10;
+  --eb-stress:   #ECFDF5, #10B981, #064E3B;
+}
+
+/* ---- 래퍼 ---- */
+.emotion-buttons-wrapper {
+  font-family: "Noto Sans KR", sans-serif;
+  padding: 2rem 1.5rem;
+  max-width: 480px;
+  margin: 0 auto;
+}
+
+.emotion-buttons-prompt {
+  font-family: "Gowun Dodum", sans-serif;
+  font-size: 1.15rem;
+  color: #374151;
+  margin: 0 0 1.25rem;
+  letter-spacing: -0.01em;
+}
+
+/* ---- 그리드 ---- */
+.emotion-buttons-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+  gap: var(--eb-gap);
+}
+
+/* ---- 개별 버튼 공통 ---- */
+.emotion-btn {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 1rem 0.75rem 0.9rem;
+  border-radius: var(--eb-radius);
+  border: 1.5px solid transparent;
+  cursor: pointer;
+  background: #F9FAFB;
+  transition:
+    transform var(--eb-transition),
+    box-shadow var(--eb-transition),
+    background var(--eb-transition),
+    border-color var(--eb-transition);
+  outline: none;
+  user-select: none;
+}
+
+.emotion-btn:hover {
+  transform: translateY(-3px) scale(1.03);
+}
+
+.emotion-btn:active {
+  transform: scale(0.97);
+}
+
+.emotion-btn:focus-visible {
+  box-shadow: 0 0 0 3px #93C5FD;
+}
+
+/* ---- 이모지 & 라벨 ---- */
+.emotion-btn__emoji {
+  font-size: 1.6rem;
+  line-height: 1;
+  transition: transform var(--eb-transition);
+}
+
+.emotion-btn:hover .emotion-btn__emoji {
+  transform: scale(1.2) rotate(-5deg);
+}
+
+.emotion-btn__label {
+  font-size: 0.82rem;
+  font-weight: 500;
+  color: #374151;
+  transition: color 0.15s;
+}
+
+/* ---- 체크 뱃지 ---- */
+.emotion-btn__check {
+  position: absolute;
+  top: 6px;
+  right: 8px;
+  font-size: 0.7rem;
+  font-weight: 700;
+  opacity: 0;
+  transition: opacity 0.15s;
+}
+
+.emotion-btn--selected .emotion-btn__check {
+  opacity: 1;
+}
+
+/* ---- 감정별 selected 색상 ---- */
+
+/* 기쁨 */
+.emotion-btn--joy.emotion-btn--selected {
+  background: #FFF3C4;
+  border-color: #F5A623;
+}
+.emotion-btn--joy.emotion-btn--selected .emotion-btn__label,
+.emotion-btn--joy.emotion-btn--selected .emotion-btn__check {
+  color: #7A5000;
+}
+
+/* 슬픔 */
+.emotion-btn--sadness.emotion-btn--selected {
+  background: #D6E8FF;
+  border-color: #3B82F6;
+}
+.emotion-btn--sadness.emotion-btn--selected .emotion-btn__label,
+.emotion-btn--sadness.emotion-btn--selected .emotion-btn__check {
+  color: #1A3A6B;
+}
+
+/* 화남 */
+.emotion-btn--anger.emotion-btn--selected {
+  background: #FFE4E0;
+  border-color: #EF4444;
+}
+.emotion-btn--anger.emotion-btn--selected .emotion-btn__label,
+.emotion-btn--anger.emotion-btn--selected .emotion-btn__check {
+  color: #7A1F1F;
+}
+
+/* 불안 */
+.emotion-btn--anxiety.emotion-btn--selected {
+  background: #EDE9FE;
+  border-color: #8B5CF6;
+}
+.emotion-btn--anxiety.emotion-btn--selected .emotion-btn__label,
+.emotion-btn--anxiety.emotion-btn--selected .emotion-btn__check {
+  color: #3B1F6B;
+}
+
+/* 피곤 */
+.emotion-btn--tired.emotion-btn--selected {
+  background: #E2E8F0;
+  border-color: #64748B;
+}
+.emotion-btn--tired.emotion-btn--selected .emotion-btn__label,
+.emotion-btn--tired.emotion-btn--selected .emotion-btn__check {
+  color: #1E293B;
+}
+
+/* 외로움 */
+.emotion-btn--lonely.emotion-btn--selected {
+  background: #FFF1E6;
+  border-color: #F97316;
+}
+.emotion-btn--lonely.emotion-btn--selected .emotion-btn__label,
+.emotion-btn--lonely.emotion-btn--selected .emotion-btn__check {
+  color: #7A3A10;
+}
+
+/* 스트레스 */
+.emotion-btn--stress.emotion-btn--selected {
+  background: #ECFDF5;
+  border-color: #10B981;
+}
+.emotion-btn--stress.emotion-btn--selected .emotion-btn__label,
+.emotion-btn--stress.emotion-btn--selected .emotion-btn__check {
+  color: #064E3B;
+}
+
+/* ---- 선택 결과 메시지 ---- */
+.emotion-buttons-selected-msg {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 1.25rem 0 0;
+  font-size: 0.9rem;
+  color: #374151;
+  animation: eb-fade-in 0.25s ease;
+}
+
+.emotion-buttons-selected-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #10B981;
+  flex-shrink: 0;
+  animation: eb-pulse 1.6s infinite;
+}
+
+@keyframes eb-fade-in {
+  from { opacity: 0; transform: translateY(4px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes eb-pulse {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0.4; }
+}
+
+/* ---- 반응형 ---- */
+@media (max-width: 360px) {
+  .emotion-buttons-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+  .emotion-btn {
+    padding: 0.75rem 0.5rem;
+  }
+  .emotion-btn__emoji {
+    font-size: 1.3rem;
+  }
+}

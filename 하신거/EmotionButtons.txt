@@ -1,0 +1,70 @@
+import "../styles/emotion-buttons.css";
+
+const EMOTIONS = [
+  { id: "joy",      label: "기쁨",     emoji: "☀️" },
+  { id: "sadness",  label: "슬픔",     emoji: "🌧️" },
+  { id: "anger",    label: "화남",     emoji: "🔥" },
+  { id: "anxiety",  label: "불안",     emoji: "🌀" },
+  { id: "tired",    label: "피곤",     emoji: "🌙" },
+  { id: "lonely",   label: "외로움",   emoji: "🍂" },
+  { id: "stress",   label: "스트레스", emoji: "⚡" },
+];
+
+export default function EmotionButtons({ selectedEmotion, onSelectEmotion }) {
+  return (
+    <div className="emotion-buttons-wrapper">
+      <p className="emotion-buttons-prompt">지금 어떤 감정이신가요?</p>
+      <div className="emotion-buttons-grid">
+        {EMOTIONS.map(({ id, label, emoji }) => {
+          const isSelected = selectedEmotion === id;
+          return (
+            <button
+              key={id}
+              className={`emotion-btn emotion-btn--${id}${isSelected ? " emotion-btn--selected" : ""}`}
+              onClick={() => onSelectEmotion(isSelected ? null : id)}
+              aria-pressed={isSelected}
+              type="button"
+            >
+              <span className="emotion-btn__emoji" aria-hidden="true">{emoji}</span>
+              <span className="emotion-btn__label">{label}</span>
+              {isSelected && (
+                <span className="emotion-btn__check" aria-hidden="true">✓</span>
+              )}
+            </button>
+          );
+        })}
+      </div>
+      {selectedEmotion && (
+        <p className="emotion-buttons-selected-msg" role="status">
+          <span className="emotion-buttons-selected-dot" />
+          선택된 감정:{" "}
+          <strong>
+            {EMOTIONS.find((e) => e.id === selectedEmotion)?.emoji}{" "}
+            {EMOTIONS.find((e) => e.id === selectedEmotion)?.label}
+          </strong>
+        </p>
+      )}
+    </div>
+  );
+}
+
+/*
+  사용 예시 (App.jsx 또는 부모 컴포넌트):
+
+  import { useState } from "react";
+  import EmotionButtons from "./components/EmotionButtons";
+
+  function App() {
+    const [selectedEmotion, setSelectedEmotion] = useState(null);
+
+    return (
+      <main>
+        <EmotionButtons
+          selectedEmotion={selectedEmotion}
+          onSelectEmotion={setSelectedEmotion}
+        />
+        {selectedEmotion && <p>다음 단계: {selectedEmotion}</p>}
+      </main>
+    );
+  }
+*/

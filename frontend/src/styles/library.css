@@ -1,0 +1,323 @@
+/* ============================================
+   MooDI – Library Page
+   ============================================ */
+
+.library-page {
+  padding-top: 80px;
+  min-height: 100vh;
+  max-width: 720px;
+  margin: 0 auto;
+  padding-left: 20px;
+  padding-right: 20px;
+  padding-bottom: 40px;
+}
+
+.library-page__title {
+  font-family: 'Gowun Dodum', serif;
+  font-size: 1.5rem;
+  color: var(--text-primary);
+  margin-bottom: 8px;
+}
+
+.library-page__subtitle {
+  font-size: 0.9rem;
+  color: var(--text-muted);
+  margin-bottom: 32px;
+}
+
+/* ── Empty State ── */
+.library-page__empty {
+  text-align: center;
+  padding: 60px 20px;
+  color: var(--text-muted);
+}
+
+.library-page__empty-icon {
+  font-size: 3rem;
+  margin-bottom: 16px;
+  opacity: 0.5;
+  line-height: 1;
+}
+
+.library-page__empty-text {
+  font-size: 1rem;
+  line-height: 1.6;
+}
+
+/* ── Library List ── */
+.library-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+/* ── Library Item ── */
+.library-item {
+  display: flex;
+  gap: 14px;
+  padding: 16px;
+  border-radius: var(--radius-lg);
+  background: var(--bg-card);
+  border: 1px solid var(--border-subtle);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  transition: border-color var(--transition-base),
+              transform var(--transition-base),
+              box-shadow var(--transition-base);
+  animation: fadeIn 0.3s ease;
+}
+
+.library-item:hover {
+  border-color: rgba(255, 255, 255, 0.12);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
+}
+
+.library-item__thumbnail {
+  width: 72px;
+  height: 72px;
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  flex-shrink: 0;
+  background: var(--bg-tertiary);
+}
+
+.library-item__thumbnail img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.library-item__info {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.library-item__title {
+  font-weight: 600;
+  font-size: 0.93rem;
+  color: var(--text-primary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.library-item__artist {
+  font-size: 0.82rem;
+  color: var(--text-secondary);
+}
+
+.library-item__meta {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 4px;
+  flex-wrap: wrap;
+}
+
+/* ── Emotion Tag ── */
+.library-item__emotion-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 3px 10px;
+  border-radius: var(--radius-full);
+  font-size: 0.72rem;
+  font-weight: 500;
+  line-height: 1;
+}
+
+.library-item__emotion-tag--joy {
+  background: rgba(245, 166, 35, 0.15);
+  color: #F5A623;
+}
+
+.library-item__emotion-tag--sadness {
+  background: rgba(59, 130, 246, 0.15);
+  color: #3B82F6;
+}
+
+.library-item__emotion-tag--anger {
+  background: rgba(239, 68, 68, 0.15);
+  color: #EF4444;
+}
+
+.library-item__emotion-tag--tired {
+  background: rgba(139, 92, 246, 0.15);
+  color: #8B5CF6;
+}
+
+.library-item__emotion-tag--excited {
+  background: rgba(247, 37, 133, 0.15);
+  color: #F72585;
+}
+
+.library-item__date {
+  font-size: 0.72rem;
+  color: var(--text-muted);
+}
+
+/* ── Actions ── */
+.library-item__actions {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+.library-item__play-btn {
+  width: 36px;
+  height: 36px;
+  border-radius: var(--radius-full);
+  background: transparent;
+  border: 1px solid rgba(6, 214, 160, 0.3);
+  color: var(--accent-cyan);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.85rem;
+  transition: background-color var(--transition-fast),
+              transform var(--transition-spring);
+}
+
+.library-item__play-btn:hover {
+  background: rgba(6, 214, 160, 0.1);
+  transform: scale(1.08);
+}
+
+.library-item__delete-btn {
+  background: transparent;
+  border: none;
+  color: rgba(239, 68, 68, 0.7);
+  cursor: pointer;
+  font-size: 0.8rem;
+  padding: 4px;
+  border-radius: var(--radius-sm);
+  transition: color var(--transition-fast),
+              background-color var(--transition-fast);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.library-item__delete-btn:hover {
+  color: #EF4444;
+  background: rgba(239, 68, 68, 0.08);
+}
+
+/* ══════════════════════════════
+   Delete Confirmation Modal
+   ══════════════════════════════ */
+
+.confirm-modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.65);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  z-index: 300;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  animation: fadeIn 0.15s ease;
+}
+
+.confirm-modal {
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-xl);
+  padding: 32px 28px;
+  width: 90%;
+  max-width: 340px;
+  text-align: center;
+  animation: slideUp 0.25s ease;
+}
+
+.confirm-modal__icon {
+  font-size: 2rem;
+  margin-bottom: 12px;
+  line-height: 1;
+}
+
+.confirm-modal__title {
+  font-family: 'Gowun Dodum', serif;
+  font-size: 1.1rem;
+  color: var(--text-primary);
+  margin-bottom: 8px;
+}
+
+.confirm-modal__desc {
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+  margin-bottom: 24px;
+  line-height: 1.5;
+}
+
+.confirm-modal__actions {
+  display: flex;
+  gap: 10px;
+  justify-content: center;
+}
+
+.confirm-modal__btn {
+  flex: 1;
+  padding: 12px 16px;
+  border-radius: var(--radius-md);
+  font-size: 0.9rem;
+  font-weight: 500;
+  cursor: pointer;
+  border: none;
+  font-family: 'Noto Sans KR', sans-serif;
+  transition: filter var(--transition-fast),
+              transform var(--transition-spring);
+}
+
+.confirm-modal__btn--cancel {
+  background: var(--bg-card);
+  color: var(--text-secondary);
+  border: 1px solid var(--border-subtle);
+}
+
+.confirm-modal__btn--cancel:hover {
+  background: var(--bg-card-hover);
+  color: var(--text-primary);
+}
+
+.confirm-modal__btn--confirm {
+  background: linear-gradient(135deg, #EF4444, #DC2626);
+  color: #ffffff;
+}
+
+.confirm-modal__btn--confirm:hover {
+  filter: brightness(1.1);
+  transform: scale(1.02);
+}
+
+/* ── Responsive ── */
+@media (max-width: 480px) {
+  .library-page {
+    padding-top: 72px;
+    padding-left: 16px;
+    padding-right: 16px;
+  }
+
+  .library-item {
+    gap: 10px;
+    padding: 12px;
+  }
+
+  .library-item__thumbnail {
+    width: 60px;
+    height: 60px;
+  }
+
+  .library-page__title {
+    font-size: 1.3rem;
+  }
+}

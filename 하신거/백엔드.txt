@@ -1,0 +1,792 @@
+﻿---
+
+
+## 최종 파일 구조
+
+
+```bash
+backend/
+├─ main.py
+├─ services/
+│  └─ llm_service.py
+├─ .env.example
+└─ requirements.txt
+```
+
+
+---
+
+
+## 1) `backend/main.py`
+
+
+```python
+import os
+from typing import Optional
+
+
+from dotenv import load_dotenv
+from fastapi import FastAPI, HTTPException
+from fastapi.middleware.cors import CORSMiddleware
+from pydantic import BaseModel
+
+
+from services.llm_service import recommend_music
+
+
+load_dotenv()
+
+
+app = FastAPI(title="Emotion-based Music Recommendation API")
+
+
+# CORS
+raw_origins = os.getenv("ALLOWED_ORIGINS", "*")
+allow_origins = [o.strip() for o in raw_origins.split(",")] if raw_origins else ["*"]
+
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=allow_origins,
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
+
+
+
+class RecommendRequest(BaseModel):
+    emotion: Optional[str] = None
+    detail: Optional[str] = None
+
+
+
+
+@app.get("/health")
+async def health():
+    return {"status": "ok"}
+
+
+
+
+@app.post("/api/recommend")
+async def recommend(req: RecommendRequest):
+    emotion = (req.emotion or "").strip()
+    detail = (req.detail or "").strip()
+
+
+    # 둘 다 비어있으면 400
+    if not emotion and not detail:
+        raise HTTPException(
+            status_code=400,
+            detail="emotion 또는 detail 중 최소 1개는 입력되어야 합니다."
+        )
+
+
+    result = await recommend_music(emotion=emotion, detail=detail)
+    return result
+```
+
+
+---
+
+
+## 2) `backend/services/llm_service.py`
+
+
+> 핵심: **고정된 예시 곡 없음**  
+> - 1순위: LLM 추천(JSON 파싱)  
+> - 실패 시: Spotify에 emotion/detail 쿼리로 동적 검색  
+> - 그것도 실패하면 빈 리스트 반환 (하드코딩 없음)
+
+
+```python
+import json
+import os
+import re
+import time
+from typing import Any, Dict, List, Optional
+
+
+import httpx
+from dotenv import load_dotenv
+
+
+load_dotenv()
+
+
+_spotify_token: Optional[str] = None
+_spotify_token_exp: float = 0.0
+
+
+
+
+def _fallback_base(emotion: str, detail: str) -> Dict[str, Any]:
+    src = (emotion or detail or "").strip()
+    return {
+        "emotion_summary": f"입력한 감정/상황을 바탕으로 음악을 추천합니다. (요약: {src[:120]})",
+        "caution_note": "의학적/심리학적 진단이 아닌 음악 추천용 요약입니다.",
+        "tracks": [],  # 고정 예시곡 없음
+    }
+
+
+
+
+def _remove_code_fence(text: str) -> str:
+    text = text.strip()
+    text = re.sub(r"^```(?:json)?\s*", "", text, flags=re.IGNORECASE)
+    text = re.sub(r"\s*```$", "", text)
+    return text.strip()
+
+
+
+
+def _safe_json_parse(text: str) -> Optional[Dict[str, Any]]:
+    if not text:
+        return None
+
+
+    cleaned = _remove_code_fence(text)
+
+
+    # 1차: 그대로 JSON 파싱
+    try:
+        data = json.loads(cleaned)
+        if isinstance(data, dict):
+            return data
+    except Exception:
+        pass
+
+
+    # 2차: 문자열 내부 JSON 객체 부분만 추출
+    start = cleaned.find("{")
+    end = cleaned.rfind("}")
+    if start != -1 and end != -1 and end > start:
+        snippet = cleaned[start:end + 1]
+        try:
+            data = json.loads(snippet)
+            if isinstance(data, dict):
+                return data
+        except Exception:
+            return None
+
+
+    return None
+
+
+
+
+def _normalize_llm_result(data: Dict[str, Any], emotion: str, detail: str) -> Dict[str, Any]:
+    emotion_summary = str(data.get("emotion_summary", "")).strip()
+    caution_note = str(data.get("caution_note", "")).strip()
+    tracks = data.get("tracks", [])
+
+
+    if not emotion_summary:
+        src = emotion if emotion else detail
+        emotion_summary = f"입력된 감정/상황 요약: {src[:120]}"
+
+
+    if not caution_note:
+        caution_note = "의학적 진단 없이 감정 상태를 존중하는 음악 추천입니다."
+
+
+    normalized_tracks: List[Dict[str, str]] = []
+    if isinstance(tracks, list):
+        for t in tracks:
+            if not isinstance(t, dict):
+                continue
+            title = str(t.get("title", "")).strip()
+            artist = str(t.get("artist", "")).strip()
+            reason = str(t.get("reason", "")).strip() or "입력 감정/상황에 어울리는 분위기"
+            if title and artist:
+                normalized_tracks.append({
+                    "title": title,
+                    "artist": artist,
+                    "reason": reason,
+                })
+
+
+    return {
+        "emotion_summary": emotion_summary,
+        "caution_note": caution_note,
+        "tracks": normalized_tracks[:5],  # 3~5곡 권장, 최대 5개 제한
+    }
+
+
+
+
+def _build_prompt(emotion: str, detail: str) -> str:
+    return f"""
+너는 감정 기반 음악 추천 어시스턴트다.
+목표:
+1) 사용자의 감정을 짧고 공감적으로 요약한다.
+2) 과하게 진단하거나 단정하지 않는다. (의학적 판단 금지)
+3) 사용자의 입력 톤과 취향 맥락(감정/상황)에 맞춰 음악을 추천한다.
+4) 반드시 JSON만 출력한다. 설명문, 마크다운, 코드블록 금지.
+
+
+사용자 입력:
+- emotion: "{emotion}"
+- detail: "{detail}"
+
+
+반드시 아래 JSON 스키마로만 응답:
+{{
+  "emotion_summary": "한두 문장 요약",
+  "caution_note": "진단이 아닌 추천임을 알리는 짧은 문장",
+  "tracks": [
+    {{
+      "title": "곡 제목",
+      "artist": "아티스트",
+      "reason": "추천 이유(짧게)"
+    }}
+  ]
+}}
+
+
+추가 규칙:
+- tracks는 3~5곡
+- 실제로 존재할 가능성이 높은 곡
+- 빈 값 금지
+""".strip()
+
+
+
+
+async def _call_openai(prompt: str) -> Optional[Dict[str, Any]]:
+    api_key = os.getenv("OPENAI_API_KEY")
+    model = os.getenv("OPENAI_MODEL", "gpt-4o-mini")
+    if not api_key:
+        return None
+
+
+    url = "https://api.openai.com/v1/chat/completions"
+    headers = {
+        "Authorization": f"Bearer {api_key}",
+        "Content-Type": "application/json",
+    }
+    payload = {
+        "model": model,
+        "temperature": 0.7,
+        "response_format": {"type": "json_object"},
+        "messages": [
+            {"role": "system", "content": "항상 유효한 JSON 객체만 출력한다."},
+            {"role": "user", "content": prompt},
+        ],
+    }
+
+
+    async with httpx.AsyncClient(timeout=30) as client:
+        r = await client.post(url, headers=headers, json=payload)
+        r.raise_for_status()
+        data = r.json()
+
+
+    content = data["choices"][0]["message"]["content"]
+    return _safe_json_parse(content)
+
+
+
+
+async def _call_gemini(prompt: str) -> Optional[Dict[str, Any]]:
+    api_key = os.getenv("GEMINI_API_KEY")
+    model = os.getenv("GEMINI_MODEL", "gemini-1.5-flash")
+    if not api_key:
+        return None
+
+
+    url = f"https://generativelanguage.googleapis.com/v1beta/models/{model}:generateContent?key={api_key}"
+    payload = {
+        "contents": [{"parts": [{"text": prompt}]}],
+        "generationConfig": {"temperature": 0.7, "maxOutputTokens": 1000},
+    }
+
+
+    async with httpx.AsyncClient(timeout=30) as client:
+        r = await client.post(url, json=payload)
+        r.raise_for_status()
+        data = r.json()
+
+
+    text = (
+        data.get("candidates", [{}])[0]
+        .get("content", {})
+        .get("parts", [{}])[0]
+        .get("text", "")
+    )
+    return _safe_json_parse(text)
+
+
+
+
+async def _call_llm(emotion: str, detail: str) -> Optional[Dict[str, Any]]:
+    provider = os.getenv("LLM_PROVIDER", "openai").lower().strip()
+    prompt = _build_prompt(emotion, detail)
+
+
+    # 1차 시도
+    try:
+        if provider == "gemini":
+            result = await _call_gemini(prompt)
+        else:
+            result = await _call_openai(prompt)
+        if result:
+            return result
+    except Exception:
+        pass
+
+
+    # 2차 시도 (엄격 지시)
+    strict_prompt = prompt + "\n반드시 JSON 객체만 반환."
+    try:
+        if provider == "gemini":
+            return await _call_gemini(strict_prompt)
+        else:
+            return await _call_openai(strict_prompt)
+    except Exception:
+        return None
+
+
+
+
+async def _get_spotify_access_token(client: httpx.AsyncClient) -> Optional[str]:
+    global _spotify_token, _spotify_token_exp
+
+
+    now = time.time()
+    if _spotify_token and now < (_spotify_token_exp - 30):
+        return _spotify_token
+
+
+    client_id = os.getenv("SPOTIFY_CLIENT_ID")
+    client_secret = os.getenv("SPOTIFY_CLIENT_SECRET")
+    if not client_id or not client_secret:
+        return None
+
+
+    try:
+        r = await client.post(
+            "https://accounts.spotify.com/api/token",
+            data={"grant_type": "client_credentials"},
+            auth=(client_id, client_secret),
+            timeout=15,
+        )
+        r.raise_for_status()
+        data = r.json()
+        _spotify_token = data.get("access_token")
+        _spotify_token_exp = now + int(data.get("expires_in", 3600))
+        return _spotify_token
+    except Exception:
+        return None
+
+
+
+
+async def _spotify_search_by_query(client: httpx.AsyncClient, query: str, limit: int = 5) -> List[Dict[str, str]]:
+    token = await _get_spotify_access_token(client)
+    if not token or not query.strip():
+        return []
+
+
+    try:
+        r = await client.get(
+            "https://api.spotify.com/v1/search",
+            headers={"Authorization": f"Bearer {token}"},
+            params={"q": query, "type": "track", "limit": limit, "market": "KR"},
+            timeout=15,
+        )
+        r.raise_for_status()
+        data = r.json()
+        items = data.get("tracks", {}).get("items", [])
+
+
+        results: List[Dict[str, str]] = []
+        for item in items:
+            title = (item.get("name") or "").strip()
+            artists = item.get("artists", [])
+            artist = (artists[0].get("name") if artists else "") or ""
+            artist = artist.strip()
+
+
+            if title and artist:
+                results.append({
+                    "title": title,
+                    "artist": artist,
+                    "reason": "입력한 감정/상황 키워드와 유사한 분위기의 트랙",
+                })
+        return results
+    except Exception:
+        return []
+
+
+
+
+async def _search_spotify_track(client: httpx.AsyncClient, title: str, artist: str) -> Dict[str, Any]:
+    token = await _get_spotify_access_token(client)
+    if not token:
+        return {"url": None, "preview_url": None, "image": None}
+
+
+    try:
+        r = await client.get(
+            "https://api.spotify.com/v1/search",
+            headers={"Authorization": f"Bearer {token}"},
+            params={"q": f'track:"{title}" artist:"{artist}"', "type": "track", "limit": 1},
+            timeout=15,
+        )
+        r.raise_for_status()
+        data = r.json()
+        items = data.get("tracks", {}).get("items", [])
+        if not items:
+            return {"url": None, "preview_url": None, "image": None}
+
+
+        item = items[0]
+        images = item.get("album", {}).get("images", [])
+        return {
+            "url": item.get("external_urls", {}).get("spotify"),
+            "preview_url": item.get("preview_url"),
+            "image": images[0]["url"] if images else None,
+        }
+    except Exception:
+        return {"url": None, "preview_url": None, "image": None}
+
+
+
+
+async def _search_youtube_video(client: httpx.AsyncClient, query: str) -> Dict[str, Any]:
+    api_key = os.getenv("YOUTUBE_API_KEY")
+    if not api_key:
+        return {"url": None, "video_id": None, "title": None}
+
+
+    try:
+        r = await client.get(
+            "https://www.googleapis.com/youtube/v3/search",
+            params={
+                "part": "snippet",
+                "q": query,
+                "type": "video",
+                "maxResults": 1,
+                "key": api_key,
+            },
+            timeout=15,
+        )
+        r.raise_for_status()
+        data = r.json()
+        items = data.get("items", [])
+        if not items:
+            return {"url": None, "video_id": None, "title": None}
+
+
+        item = items[0]
+        video_id = item.get("id", {}).get("videoId")
+        return {
+            "url": f"https://www.youtube.com/watch?v={video_id}" if video_id else None,
+            "video_id": video_id,
+            "title": item.get("snippet", {}).get("title"),
+        }
+    except Exception:
+        return {"url": None, "video_id": None, "title": None}
+
+
+
+
+async def recommend_music(emotion: str, detail: str) -> Dict[str, Any]:
+    llm_raw = await _call_llm(emotion, detail)
+
+
+    if llm_raw:
+        base = _normalize_llm_result(llm_raw, emotion, detail)
+        fallback_used = False
+    else:
+        base = _fallback_base(emotion, detail)
+        fallback_used = True
+
+
+    async with httpx.AsyncClient() as client:
+        # LLM 실패(또는 파싱 결과 tracks 비어있음) -> Spotify 키워드 기반 동적 검색
+        if not base["tracks"]:
+            dynamic_query = f"{emotion} {detail}".strip()
+            base["tracks"] = await _spotify_search_by_query(client, dynamic_query, limit=5)
+
+
+        enriched: List[Dict[str, Any]] = []
+        for t in base["tracks"]:
+            title = t["title"]
+            artist = t["artist"]
+
+
+            spotify = await _search_spotify_track(client, title, artist)
+            youtube = await _search_youtube_video(client, f"{title} {artist} official audio")
+
+
+            enriched.append({
+                "title": title,
+                "artist": artist,
+                "reason": t.get("reason"),
+                "spotify": spotify,
+                "youtube": youtube,
+            })
+
+
+    return {
+        "emotion_summary": base["emotion_summary"],
+        "caution_note": base["caution_note"],
+        "recommendations": enriched,
+        "meta": {
+            "llm_provider": os.getenv("LLM_PROVIDER", "openai"),
+            "fallback_used": fallback_used,
+        },
+    }
+```
+
+
+---
+
+
+## 3) `backend/.env.example`
+
+
+```env
+# ===== CORS =====
+ALLOWED_ORIGINS=http://localhost:3000,http://127.0.0.1:3000
+
+
+# ===== LLM =====
+# openai 또는 gemini
+LLM_PROVIDER=openai
+
+
+OPENAI_API_KEY=your_openai_api_key
+OPENAI_MODEL=gpt-4o-mini
+
+
+GEMINI_API_KEY=your_gemini_api_key
+GEMINI_MODEL=gemini-1.5-flash
+
+
+# ===== Spotify =====
+SPOTIFY_CLIENT_ID=your_spotify_client_id
+SPOTIFY_CLIENT_SECRET=your_spotify_client_secret
+
+
+# ===== YouTube =====
+YOUTUBE_API_KEY=your_youtube_data_api_key
+```
+
+
+---
+
+
+## 4) `backend/requirements.txt`
+
+
+```txt
+fastapi
+uvicorn[standard]
+python-dotenv
+httpx
+pydantic
+```
+
+
+---
+
+
+# 실행 방법 (API 키 입력/연결 포함, 상세)
+
+
+## 0. 사전 준비
+- Python 3.10+ 권장
+- 터미널에서 `backend` 폴더 기준으로 작업
+
+
+---
+
+
+## 1. 프로젝트 생성 및 코드 배치
+
+
+```bash
+mkdir -p backend/services
+# 위 4개 파일을 해당 경로에 저장
+```
+
+
+---
+
+
+## 2. 가상환경 생성/활성화
+
+
+```bash
+cd backend
+python -m venv .venv
+```
+
+
+- macOS/Linux
+```bash
+source .venv/bin/activate
+```
+
+
+- Windows (PowerShell)
+```powershell
+.venv\Scripts\Activate.ps1
+```
+
+
+---
+
+
+## 3. 패키지 설치
+
+
+```bash
+pip install -r requirements.txt
+```
+
+
+---
+
+
+## 4. `.env` 파일 생성
+
+
+```bash
+# mac/linux
+cp .env.example .env
+
+
+# windows cmd
+copy .env.example .env
+```
+
+
+`.env` 열어서 키 입력.
+
+
+---
+
+
+## 5. API 키 발급 및 연결 방법
+
+
+## A) LLM (OpenAI 또는 Gemini 중 1개 이상)
+
+
+### OpenAI 사용 시
+1. OpenAI 플랫폼에서 API 키 발급
+2. `.env`에 입력:
+```env
+LLM_PROVIDER=openai
+OPENAI_API_KEY=발급받은키
+OPENAI_MODEL=gpt-4o-mini
+```
+
+
+### Gemini 사용 시
+1. Google AI Studio/Cloud에서 Gemini API 키 발급
+2. `.env`에 입력:
+```env
+LLM_PROVIDER=gemini
+GEMINI_API_KEY=발급받은키
+GEMINI_MODEL=gemini-1.5-flash
+```
+
+
+> 둘 다 입력해도 되고, `LLM_PROVIDER`로 실제 사용 대상을 선택합니다.
+
+
+---
+
+
+## B) Spotify API
+1. Spotify Developer Dashboard에서 앱 생성
+2. `Client ID`, `Client Secret` 확인
+3. `.env`에 입력:
+```env
+SPOTIFY_CLIENT_ID=...
+SPOTIFY_CLIENT_SECRET=...
+```
+
+
+---
+
+
+## C) YouTube Data API
+1. Google Cloud Console 프로젝트 생성
+2. YouTube Data API v3 활성화
+3. API 키 생성
+4. `.env`에 입력:
+```env
+YOUTUBE_API_KEY=...
+```
+
+
+---
+
+
+## 6. 서버 실행
+
+
+```bash
+uvicorn main:app --reload --host 0.0.0.0 --port 8000
+```
+
+
+정상 실행되면:
+- Health: `http://localhost:8000/health`
+- API 문서: `http://localhost:8000/docs`
+
+
+---
+
+
+## 7. 프론트엔드 연결 규칙
+
+
+프론트엔드는 아래로 POST:
+
+
+- URL: `http://localhost:8000/api/recommend`
+- Body(JSON):
+```json
+{
+  "emotion": "우울하고 지침",
+  "detail": "요즘 과제 때문에 잠을 못 자고 불안함"
+}
+```
+
+
+`emotion` 또는 `detail` 중 하나만 있어도 동작합니다.  
+둘 다 빈 값이면 400 반환.
+
+
+---
+
+
+## 8. 테스트 (curl)
+
+
+```bash
+curl -X POST "http://localhost:8000/api/recommend" \
+  -H "Content-Type: application/json" \
+  -d '{"emotion":"기분전환 하고싶어","detail":"퇴근 후 가볍게 산책할 때 들을 노래"}'
+```
+
+
+---
+
+
+## 9. 보안 주의사항 (중요)
+- `.env`는 절대 프론트엔드/깃허브에 공개 금지
+- `.gitignore`에 `.env` 추가
+- 프론트엔드에는 키를 절대 보내지 않고, 백엔드에서만 외부 API 호출
+
+
+---

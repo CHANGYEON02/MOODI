@@ -1,0 +1,226 @@
+/* ============================================
+   MooDI – Emotion Buttons
+   ============================================ */
+
+.emotion-buttons-wrapper {
+  padding: 2rem 0;
+  width: 100%;
+}
+
+.emotion-buttons-prompt {
+  font-family: 'Gowun Dodum', serif;
+  font-size: 1.1rem;
+  color: var(--text-secondary);
+  margin-bottom: 1rem;
+  text-align: center;
+  line-height: 1.6;
+}
+
+/* ── Button Grid ── */
+.emotion-buttons-grid {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 12px;
+}
+
+/* ── Individual Button ── */
+.emotion-btn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 16px 20px;
+  border-radius: var(--radius-lg);
+  border: 1.5px solid var(--border-subtle);
+  background: var(--bg-card);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  cursor: pointer;
+  transition: all var(--transition-spring);
+  min-width: 90px;
+  position: relative;
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.emotion-btn:hover {
+  transform: translateY(-3px) scale(1.04);
+  border-color: rgba(255, 255, 255, 0.15);
+  box-shadow: var(--shadow-glow);
+}
+
+.emotion-btn:active {
+  transform: translateY(-1px) scale(1.01);
+}
+
+/* ── Emoji ── */
+.emotion-btn__emoji {
+  font-size: 1.8rem;
+  transition: transform var(--transition-spring);
+  line-height: 1;
+}
+
+.emotion-btn:hover .emotion-btn__emoji {
+  transform: scale(1.1);
+}
+
+/* ── Label ── */
+.emotion-btn__label {
+  font-size: 0.85rem;
+  font-weight: 500;
+  color: var(--text-secondary);
+  transition: color var(--transition-fast);
+}
+
+/* ── Check Mark ── */
+.emotion-btn__check {
+  position: absolute;
+  top: 6px;
+  right: 8px;
+  font-size: 0.7rem;
+  font-weight: 700;
+  opacity: 0;
+  transform: scale(0);
+  transition: opacity var(--transition-fast),
+              transform var(--transition-spring);
+}
+
+/* ──────────────────────────────
+   Selected States per Emotion
+   ────────────────────────────── */
+
+/* Joy – Amber */
+.emotion-btn--joy.emotion-btn--selected {
+  background: rgba(245, 166, 35, 0.15);
+  border-color: #F5A623;
+  box-shadow: 0 0 16px rgba(245, 166, 35, 0.2),
+              0 0 4px rgba(245, 166, 35, 0.1);
+}
+
+.emotion-btn--joy.emotion-btn--selected .emotion-btn__label {
+  color: var(--text-primary);
+}
+
+.emotion-btn--joy.emotion-btn--selected .emotion-btn__check {
+  opacity: 1;
+  transform: scale(1);
+  color: #F5A623;
+}
+
+/* Sadness – Blue */
+.emotion-btn--sadness.emotion-btn--selected {
+  background: rgba(59, 130, 246, 0.15);
+  border-color: #3B82F6;
+  box-shadow: 0 0 16px rgba(59, 130, 246, 0.2),
+              0 0 4px rgba(59, 130, 246, 0.1);
+}
+
+.emotion-btn--sadness.emotion-btn--selected .emotion-btn__label {
+  color: var(--text-primary);
+}
+
+.emotion-btn--sadness.emotion-btn--selected .emotion-btn__check {
+  opacity: 1;
+  transform: scale(1);
+  color: #3B82F6;
+}
+
+/* Anger – Red */
+.emotion-btn--anger.emotion-btn--selected {
+  background: rgba(239, 68, 68, 0.15);
+  border-color: #EF4444;
+  box-shadow: 0 0 16px rgba(239, 68, 68, 0.2),
+              0 0 4px rgba(239, 68, 68, 0.1);
+}
+
+.emotion-btn--anger.emotion-btn--selected .emotion-btn__label {
+  color: var(--text-primary);
+}
+
+.emotion-btn--anger.emotion-btn--selected .emotion-btn__check {
+  opacity: 1;
+  transform: scale(1);
+  color: #EF4444;
+}
+
+/* Tired – Violet */
+.emotion-btn--tired.emotion-btn--selected {
+  background: rgba(139, 92, 246, 0.15);
+  border-color: #8B5CF6;
+  box-shadow: 0 0 16px rgba(139, 92, 246, 0.2),
+              0 0 4px rgba(139, 92, 246, 0.1);
+}
+
+.emotion-btn--tired.emotion-btn--selected .emotion-btn__label {
+  color: var(--text-primary);
+}
+
+.emotion-btn--tired.emotion-btn--selected .emotion-btn__check {
+  opacity: 1;
+  transform: scale(1);
+  color: #8B5CF6;
+}
+
+/* Excited – Pink */
+.emotion-btn--excited.emotion-btn--selected {
+  background: rgba(247, 37, 133, 0.15);
+  border-color: #F72585;
+  box-shadow: 0 0 16px rgba(247, 37, 133, 0.2),
+              0 0 4px rgba(247, 37, 133, 0.1);
+}
+
+.emotion-btn--excited.emotion-btn--selected .emotion-btn__label {
+  color: var(--text-primary);
+}
+
+.emotion-btn--excited.emotion-btn--selected .emotion-btn__check {
+  opacity: 1;
+  transform: scale(1);
+  color: #F72585;
+}
+
+/* ── Selected Message ── */
+.emotion-buttons-selected-msg {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  margin-top: 16px;
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+  animation: fadeIn 0.3s ease;
+}
+
+.emotion-buttons-selected-msg__dot {
+  width: 6px;
+  height: 6px;
+  border-radius: var(--radius-full);
+  background: var(--accent-violet);
+  animation: pulse-glow 1.5s ease-in-out infinite;
+}
+
+/* ── Responsive ── */
+@media (max-width: 480px) {
+  .emotion-buttons-grid {
+    gap: 8px;
+  }
+
+  .emotion-btn {
+    padding: 12px 14px;
+    min-width: 76px;
+  }
+
+  .emotion-btn__emoji {
+    font-size: 1.5rem;
+  }
+
+  .emotion-btn__label {
+    font-size: 0.78rem;
+  }
+
+  .emotion-buttons-prompt {
+    font-size: 1rem;
+  }
+}

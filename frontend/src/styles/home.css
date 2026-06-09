@@ -1,0 +1,43 @@
+/* ============================================
+   MooDI – Home Page Layout
+   ============================================ */
+
+.home-page {
+  padding-top: 80px;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding-bottom: 40px;
+}
+
+.home-page__content {
+  max-width: 640px;
+  width: 100%;
+  padding: 0 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.home-page__recommendation {
+  width: 100%;
+  max-width: 640px;
+  padding: 0 20px;
+  animation: fadeIn 0.5s ease;
+}
+
+/* ── Responsive ── */
+@media (max-width: 480px) {
+  .home-page {
+    padding-top: 72px;
+  }
+
+  .home-page__content {
+    padding: 0 16px;
+  }
+
+  .home-page__recommendation {
+    padding: 0 16px;
+  }
+}

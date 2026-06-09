@@ -1,0 +1,214 @@
+/* ─────────────────────────────────────────
+   emotion-input.css
+   감정 입력 컴포넌트 스타일
+───────────────────────────────────────── */
+
+@import url('https://fonts.googleapis.com/css2?family=Gowun+Dodum&family=DM+Serif+Display:ital@0;1&display=swap');
+
+:root {
+  --ei-bg: #faf8f5;
+  --ei-surface: #ffffff;
+  --ei-border: #e2ddd6;
+  --ei-border-focus: #b5a898;
+  --ei-accent: #8c7b6e;
+  --ei-accent-warm: #c4956a;
+  --ei-text-primary: #2c2420;
+  --ei-text-secondary: #9b8f87;
+  --ei-text-hint: #b8ada5;
+  --ei-warn: #c97d4e;
+  --ei-error: #b85c3a;
+  --ei-radius: 14px;
+  --ei-transition: 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* ── Wrapper ── */
+.emotion-input-wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  font-family: 'Gowun Dodum', serif;
+  width: 100%;
+  max-width: 620px;
+  margin: 0 auto;
+}
+
+/* ── Label ── */
+.emotion-input-label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-family: 'DM Serif Display', serif;
+  font-size: 1.15rem;
+  color: var(--ei-text-primary);
+  letter-spacing: -0.01em;
+  cursor: default;
+  user-select: none;
+}
+
+.emotion-input-label-icon {
+  font-size: 0.75rem;
+  color: var(--ei-accent-warm);
+  animation: ei-spin 6s linear infinite;
+}
+
+@keyframes ei-spin {
+  from { transform: rotate(0deg); }
+  to   { transform: rotate(360deg); }
+}
+
+/* ── Textarea container ── */
+.emotion-textarea-container {
+  position: relative;
+  border-radius: var(--ei-radius);
+  background: var(--ei-surface);
+  border: 1.5px solid var(--ei-border);
+  transition:
+    border-color var(--ei-transition),
+    box-shadow var(--ei-transition);
+  overflow: hidden;
+}
+
+.emotion-textarea-container:focus-within {
+  border-color: var(--ei-border-focus);
+  box-shadow:
+    0 0 0 3px rgba(180, 168, 152, 0.18),
+    0 4px 20px rgba(44, 36, 32, 0.07);
+}
+
+.emotion-textarea-container.near-limit {
+  border-color: var(--ei-warn);
+}
+
+.emotion-textarea-container.near-limit:focus-within {
+  box-shadow:
+    0 0 0 3px rgba(201, 125, 78, 0.15),
+    0 4px 20px rgba(44, 36, 32, 0.07);
+}
+
+.emotion-textarea-container.at-limit {
+  border-color: var(--ei-error);
+}
+
+.emotion-textarea-container.at-limit:focus-within {
+  box-shadow:
+    0 0 0 3px rgba(184, 92, 58, 0.15),
+    0 4px 20px rgba(44, 36, 32, 0.07);
+}
+
+/* ── Animated bottom border ── */
+.emotion-textarea-border-animation {
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%) scaleX(0);
+  width: calc(100% - 24px);
+  height: 2px;
+  border-radius: 2px;
+  background: linear-gradient(90deg, var(--ei-accent), var(--ei-accent-warm));
+  transform-origin: center;
+  transition: transform 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+  pointer-events: none;
+}
+
+.emotion-textarea-container:focus-within .emotion-textarea-border-animation {
+  transform: translateX(-50%) scaleX(1);
+}
+
+.emotion-textarea-container.near-limit .emotion-textarea-border-animation {
+  background: linear-gradient(90deg, var(--ei-warn), #e8a06a);
+}
+
+.emotion-textarea-container.at-limit .emotion-textarea-border-animation {
+  background: linear-gradient(90deg, var(--ei-error), #d4785a);
+}
+
+/* ── Textarea ── */
+.emotion-textarea {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 18px 20px 20px;
+  font-family: 'Gowun Dodum', serif;
+  font-size: 1rem;
+  line-height: 1.75;
+  color: var(--ei-text-primary);
+  background: transparent;
+  border: none;
+  outline: none;
+  resize: none;
+  caret-color: var(--ei-accent-warm);
+  letter-spacing: 0.01em;
+  transition: color var(--ei-transition);
+}
+
+.emotion-textarea::placeholder {
+  color: var(--ei-text-hint);
+  font-style: italic;
+}
+
+.emotion-textarea::-webkit-scrollbar {
+  width: 4px;
+}
+
+.emotion-textarea::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.emotion-textarea::-webkit-scrollbar-thumb {
+  background: var(--ei-border);
+  border-radius: 4px;
+}
+
+/* ── Footer ── */
+.emotion-input-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 2px;
+}
+
+.emotion-input-hint {
+  font-size: 0.78rem;
+  color: var(--ei-text-hint);
+  letter-spacing: 0.01em;
+  transition: color var(--ei-transition);
+}
+
+/* ── Char count ── */
+.emotion-char-count {
+  font-family: 'DM Serif Display', serif;
+  font-size: 0.85rem;
+  color: var(--ei-text-secondary);
+  letter-spacing: 0.03em;
+  transition: color var(--ei-transition);
+  white-space: nowrap;
+}
+
+.char-divider {
+  opacity: 0.4;
+  margin: 0 3px;
+}
+
+.emotion-char-count.near-limit {
+  color: var(--ei-warn);
+}
+
+.emotion-char-count.at-limit {
+  color: var(--ei-error);
+  font-style: italic;
+}
+
+/* ── Responsive ── */
+@media (max-width: 480px) {
+  .emotion-input-label {
+    font-size: 1rem;
+  }
+
+  .emotion-textarea {
+    font-size: 0.95rem;
+    padding: 14px 16px 16px;
+  }
+
+  .emotion-input-hint {
+    font-size: 0.72rem;
+  }
+}

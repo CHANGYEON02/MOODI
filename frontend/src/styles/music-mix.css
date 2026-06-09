@@ -1,0 +1,109 @@
+/* ============================================
+   MooDI – Music Mix Placeholder Page
+   ============================================ */
+
+.music-mix-page {
+  padding-top: 80px;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding-bottom: 40px;
+}
+
+.music-mix-page__placeholder {
+  text-align: center;
+  padding: 40px;
+  max-width: 400px;
+}
+
+.music-mix-page__icon {
+  font-size: 4rem;
+  margin-bottom: 20px;
+  animation: float 3s ease-in-out infinite;
+  line-height: 1;
+}
+
+.music-mix-page__title {
+  font-family: 'Gowun Dodum', serif;
+  font-size: 1.3rem;
+  color: var(--text-primary);
+  margin-bottom: 12px;
+  line-height: 1.5;
+}
+
+.music-mix-page__desc {
+  font-size: 0.9rem;
+  color: var(--text-secondary);
+  line-height: 1.6;
+}
+
+.music-mix-page__badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 16px;
+  border-radius: var(--radius-full);
+  background: rgba(139, 92, 246, 0.12);
+  color: var(--accent-violet);
+  font-size: 0.8rem;
+  font-weight: 500;
+  margin-top: 20px;
+  letter-spacing: 0.02em;
+}
+
+.music-mix-page__features {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 10px;
+  margin-top: 28px;
+}
+
+.music-mix-page__feature {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 16px;
+  border-radius: var(--radius-md);
+  background: var(--bg-card);
+  border: 1px solid var(--border-subtle);
+  color: var(--text-secondary);
+  font-size: 0.82rem;
+  backdrop-filter: blur(8px);
+  transition: all var(--transition-base);
+}
+
+.music-mix-page__feature:hover {
+  border-color: rgba(255, 255, 255, 0.12);
+  color: var(--text-primary);
+  transform: translateY(-2px);
+}
+
+.music-mix-page__feature-icon {
+  font-size: 1.1rem;
+}
+
+/* ── Responsive ── */
+@media (max-width: 480px) {
+  .music-mix-page {
+    padding-top: 72px;
+  }
+
+  .music-mix-page__placeholder {
+    padding: 24px 20px;
+  }
+
+  .music-mix-page__icon {
+    font-size: 3rem;
+  }
+
+  .music-mix-page__title {
+    font-size: 1.15rem;
+  }
+
+  .music-mix-page__desc {
+    font-size: 0.85rem;
+  }
+}
