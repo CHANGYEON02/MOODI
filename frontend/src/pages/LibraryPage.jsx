@@ -68,6 +68,10 @@ export default function LibraryPage() {
                 ? `https://img.youtube.com/vi/${item.youtube.video_id}/mqdefault.jpg`
                 : null);
 
+            // Construct fallback play URL if direct video URL is not saved
+            const playUrl = item.youtube?.url || 
+              `https://www.youtube.com/results?search_query=${encodeURIComponent(item.title + ' ' + item.artist)}`;
+
             return (
               <div className="library-item" key={item.id}>
                 <div className="library-item__thumbnail">
@@ -92,26 +96,15 @@ export default function LibraryPage() {
                     </span>
                   </div>
                   <div className="library-item__actions">
-                    {item.youtube?.url ? (
-                      <a
-                        className="library-item__action-btn library-item__action-btn--play"
-                        href={item.youtube.url}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        style={{ textDecoration: 'none' }}
-                      >
-                        ▶ 재생
-                      </a>
-                    ) : (
-                      <button
-                        className="library-item__action-btn library-item__action-btn--play"
-                        disabled
-                        style={{ opacity: 0.5, cursor: 'not-allowed' }}
-                        type="button"
-                      >
-                        ▶ 재생
-                      </button>
-                    )}
+                    <a
+                      className="library-item__action-btn library-item__action-btn--play"
+                      href={playUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      style={{ textDecoration: 'none' }}
+                    >
+                      ▶ 재생
+                    </a>
                     <button
                       className="library-item__action-btn library-item__action-btn--delete"
                       onClick={() => handleDelete(item.id)}

@@ -21,6 +21,11 @@ export default function MusicCard({ track, emotionTag, onMixClick }) {
       ? `https://img.youtube.com/vi/${track.youtube.video_id}/mqdefault.jpg`
       : null);
 
+  // If specific video URL is not found (e.g. YouTube quota limit or API error),
+  // fallback to search query URL so that user can still play the song.
+  const playUrl = track.youtube?.url || 
+    `https://www.youtube.com/results?search_query=${encodeURIComponent(track.title + ' ' + track.artist)}`;
+
   return (
     <div className="music-card" id={`music-card-${track.title.replace(/\s+/g, '-')}`}>
       <div className="music-card__thumbnail">
@@ -35,26 +40,15 @@ export default function MusicCard({ track, emotionTag, onMixClick }) {
         <p className="music-card__artist">{track.artist}</p>
         <p className="music-card__reason">{track.reason}</p>
         <div className="music-card__actions">
-          {track.youtube?.url ? (
-            <a
-              className="music-card__action-btn music-card__action-btn--play"
-              href={track.youtube.url}
-              target="_blank"
-              rel="noopener noreferrer"
-              style={{ textDecoration: 'none' }}
-            >
-              ▶ 재생
-            </a>
-          ) : (
-            <button
-              className="music-card__action-btn music-card__action-btn--play"
-              disabled
-              style={{ opacity: 0.5, cursor: 'not-allowed' }}
-              type="button"
-            >
-              ▶ 재생
-            </button>
-          )}
+          <a
+            className="music-card__action-btn music-card__action-btn--play"
+            href={playUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            style={{ textDecoration: 'none' }}
+          >
+            ▶ 재생
+          </a>
           <button
             className={`music-card__action-btn music-card__action-btn--save${saved ? ' music-card__action-btn--saved' : ''}`}
             onClick={handleSave}

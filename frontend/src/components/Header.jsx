@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import '../styles/header.css';
 
@@ -19,9 +20,9 @@ export default function Header({ onMenuClick, onProfileClick }) {
         </svg>
       </button>
 
-      <div className="header__logo">
+      <Link to="/" className="header__logo" style={{ textDecoration: 'none' }}>
         <span className="header__logo-text">Moo<span className="header__logo-accent">DI</span></span>
-      </div>
+      </Link>
 
       <button
         className="header__profile-btn"
