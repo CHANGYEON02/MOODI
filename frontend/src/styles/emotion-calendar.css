@@ -1,0 +1,170 @@
+/* ============================================
+   MooDI – Emotion Calendar (Weekly View)
+   ============================================ */
+
+.emotion-calendar {
+  width: 100%;
+  max-width: 640px;
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-lg);
+  padding: 20px;
+  margin-top: 28px;
+  animation: fadeIn 0.5s ease;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.04);
+}
+
+/* ── Title ── */
+.emotion-calendar__title {
+  font-family: 'Gowun Dodum', serif;
+  font-size: 1rem;
+  color: var(--text-primary);
+  margin-bottom: 16px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+/* ── 7-Column Grid ── */
+.emotion-calendar__grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 6px;
+}
+
+/* ── Individual Day Cell ── */
+.emotion-calendar__day {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 5px;
+  padding: 10px 4px;
+  border-radius: var(--radius-md);
+  background: var(--bg-primary);
+  min-height: 86px;
+  border: 1px solid transparent;
+  transition: border-color var(--transition-fast), background-color var(--transition-fast);
+}
+
+.emotion-calendar__day.today {
+  background: rgba(124, 58, 237, 0.06);
+  border-color: rgba(124, 58, 237, 0.25);
+}
+
+.emotion-calendar__day.future {
+  opacity: 0.38;
+}
+
+.emotion-calendar__day.past-empty {
+  opacity: 0.55;
+}
+
+/* ── Day Labels ── */
+.emotion-calendar__day-label {
+  font-size: 0.7rem;
+  font-weight: 700;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.emotion-calendar__day.today .emotion-calendar__day-label {
+  color: var(--accent-violet);
+}
+
+/* 토·일 (인덱스 5, 6) 색상 약간 다르게 */
+.emotion-calendar__day:nth-child(6) .emotion-calendar__day-label,
+.emotion-calendar__day:nth-child(7) .emotion-calendar__day-label {
+  color: var(--accent-pink);
+  opacity: 0.8;
+}
+
+.emotion-calendar__day-num {
+  font-size: 0.88rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  line-height: 1;
+}
+
+.emotion-calendar__day.today .emotion-calendar__day-num {
+  color: var(--accent-violet);
+}
+
+/* ── Emotion Emoji Area ── */
+.emotion-calendar__emotions {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1px;
+  flex: 1;
+  justify-content: center;
+  margin-top: 2px;
+}
+
+.emotion-calendar__emoji {
+  font-size: 1.1rem;
+  line-height: 1.4;
+  transition: transform var(--transition-spring);
+}
+
+.emotion-calendar__emoji:hover {
+  transform: scale(1.2);
+}
+
+/* 기록 없는 날 점 */
+.emotion-calendar__empty-dot {
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: var(--border-subtle);
+}
+
+/* ── Legend ── */
+.emotion-calendar__legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px 16px;
+  margin-top: 14px;
+  padding-top: 14px;
+  border-top: 1px solid var(--border-subtle);
+}
+
+.emotion-calendar__legend-item {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 0.75rem;
+}
+
+.emotion-calendar__legend-label {
+  color: var(--text-muted);
+}
+
+/* ── Responsive ── */
+@media (max-width: 480px) {
+  .emotion-calendar {
+    padding: 14px;
+    margin-top: 20px;
+  }
+
+  .emotion-calendar__grid {
+    gap: 4px;
+  }
+
+  .emotion-calendar__day {
+    padding: 7px 2px;
+    min-height: 72px;
+  }
+
+  .emotion-calendar__emoji {
+    font-size: 0.95rem;
+  }
+
+  .emotion-calendar__day-num {
+    font-size: 0.78rem;
+  }
+
+  .emotion-calendar__legend {
+    gap: 8px 12px;
+  }
+}
