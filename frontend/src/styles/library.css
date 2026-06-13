@@ -68,9 +68,9 @@
 }
 
 .library-item:hover {
-  border-color: rgba(255, 255, 255, 0.12);
+  border-color: rgba(124, 58, 237, 0.2);
   transform: translateY(-1px);
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
 }
 
 .library-item__thumbnail {

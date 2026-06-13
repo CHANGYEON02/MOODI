@@ -94,22 +94,22 @@ export function LibraryProvider({ children }) {
   };
 
   const addTrackToPlaylist = (playlistId, trackId) => {
-    let message = '플레이리스트에 추가되었습니다.';
-    let success = true;
+    // 사전에 중복 검사 후 결과를 반환 (setPlaylists는 비동기라 콜백 내 변수 변경은 신뢰 불가)
+    const targetPlaylist = playlists.find(p => p.id === playlistId);
+    if (!targetPlaylist) {
+      return { success: false, message: '플레이리스트를 찾을 수 없습니다.' };
+    }
+    if (targetPlaylist.trackIds.includes(trackId)) {
+      return { success: false, message: '이미 플레이리스트에 담긴 노래입니다.' };
+    }
 
-    setPlaylists(prev => prev.map(p => {
-      if (p.id === playlistId) {
-        if (p.trackIds.includes(trackId)) {
-          success = false;
-          message = '이미 플레이리스트에 담긴 노래입니다.';
-          return p;
-        }
-        return { ...p, trackIds: [...p.trackIds, trackId] };
-      }
-      return p;
-    }));
+    setPlaylists(prev => prev.map(p =>
+      p.id === playlistId
+        ? { ...p, trackIds: [...p.trackIds, trackId] }
+        : p
+    ));
 
-    return { success, message };
+    return { success: true, message: '플레이리스트에 추가되었습니다.' };
   };
 
   const removeTrackFromPlaylist = (playlistId, trackId) => {

@@ -18,6 +18,12 @@ export default function LibraryPage() {
   const [newPlaylistName, setNewPlaylistName] = useState('');
   const [confirmDelete, setConfirmDelete] = useState(null); // 라이브러리 곡 삭제 확인용 { id, type: 'track' | 'playlist' }
   const [playlistTrackToAdd, setPlaylistTrackToAdd] = useState(null); // 플레이리스트 추가 모달용 track 객체
+  const [toast, setToast] = useState(null); // { msg: string, ok: boolean }
+
+  const showToast = (msg, ok = true) => {
+    setToast({ msg, ok });
+    setTimeout(() => setToast(null), 2200);
+  };
 
   const handleDeleteClick = (id, type = 'track') => {
     setConfirmDelete({ id, type });
@@ -45,7 +51,7 @@ export default function LibraryPage() {
     e.preventDefault();
     if (!newPlaylistName.trim()) return;
     const res = createPlaylist(newPlaylistName);
-    alert(res.message);
+    showToast(res.message, res.success);
     if (res.success) {
       setNewPlaylistName('');
     }
@@ -54,8 +60,8 @@ export default function LibraryPage() {
   const handleAddToPlaylist = (playlistId) => {
     if (!playlistTrackToAdd) return;
     const res = addTrackToPlaylist(playlistId, playlistTrackToAdd.id);
-    alert(res.message);
-    setPlaylistTrackToAdd(null);
+    showToast(res.message, res.success);
+    if (res.success) setPlaylistTrackToAdd(null);
   };
 
   const formatDate = (isoString) => {
@@ -92,6 +98,28 @@ export default function LibraryPage() {
       <p className="library-page__subtitle">
         나만의 감정 보관함과 음악 플레이리스트
       </p>
+
+      {/* 토스트 알림 */}
+      {toast && (
+        <div style={{
+          position: 'fixed',
+          bottom: '24px',
+          left: '50%',
+          transform: 'translateX(-50%)',
+          background: toast.ok ? 'linear-gradient(135deg, var(--accent-violet), var(--accent-cyan))' : '#EF4444',
+          color: '#ffffff',
+          padding: '12px 24px',
+          borderRadius: 'var(--radius-lg)',
+          fontSize: '0.9rem',
+          fontWeight: '500',
+          zIndex: 1000,
+          boxShadow: '0 8px 24px rgba(0,0,0,0.15)',
+          animation: 'slideUp 0.25s ease',
+          whiteSpace: 'nowrap',
+        }}>
+          {toast.msg}
+        </div>
+      )}
 
       {/* 탭 네비게이션 */}
       <div className="library-tabs">
