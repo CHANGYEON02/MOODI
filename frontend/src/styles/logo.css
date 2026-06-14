@@ -1,103 +1,39 @@
 /* ============================================
-   MooDI – Circular Logo & Title
+   MooDI – Image Logo
    ============================================ */
 
 .moodi-logo {
   display: flex;
   flex-direction: column;
   align-items: center;
-  margin: 40px 0 32px;
+  margin: 32px 0 28px;
   user-select: none;
 }
 
-/* ── Circle ── */
-.moodi-logo__circle {
-  width: 180px;
-  height: 180px;
+/* ── Logo Image ── */
+.moodi-logo__img {
+  width: 220px;
+  height: 220px;
+  object-fit: cover;
   border-radius: 50%;
-  background: linear-gradient(
-    135deg,
-    rgba(139, 92, 246, 0.2),
-    rgba(6, 214, 160, 0.1),
-    rgba(247, 37, 133, 0.1)
-  );
-  border: 2px solid rgba(255, 255, 255, 0.08);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  position: relative;
-  animation: float 4s ease-in-out infinite;
-  box-shadow: 0 0 40px rgba(139, 92, 246, 0.15);
+  animation: float 5s ease-in-out infinite;
+  box-shadow:
+    0 0 0 6px rgba(209, 176, 237, 0.25),
+    0 8px 32px rgba(180, 120, 230, 0.18);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  display: block;
 }
 
-/* Spinning dashed outer ring */
-.moodi-logo__circle::before {
-  content: '';
-  position: absolute;
-  inset: -4px;
-  border-radius: 50%;
-  border: 1px dashed rgba(139, 92, 246, 0.2);
-  animation: spin-slow 20s linear infinite;
-}
-
-/* Inner vinyl groove ring */
-.moodi-logo__circle::after {
-  content: '';
-  position: absolute;
-  inset: 25%;
-  border-radius: 50%;
-  border: 1px solid rgba(255, 255, 255, 0.05);
-  pointer-events: none;
-}
-
-/* ── Logo Text (inside circle) ── */
-.moodi-logo__text {
-  font-family: 'Gowun Dodum', serif;
-  font-size: 2rem;
-  letter-spacing: 0.1em;
-  background: linear-gradient(135deg, #8B5CF6, #06D6A0);
-  -webkit-background-clip: text;
-  background-clip: text;
-  -webkit-text-fill-color: transparent;
-  color: transparent;
-  position: relative;
-  z-index: 1;
-}
-
-/* ── Music Note Decoration ── */
-.moodi-logo__note {
-  position: absolute;
-  font-size: 1rem;
-  opacity: 0.4;
-  animation: float 3s ease-in-out infinite;
-  pointer-events: none;
-}
-
-.moodi-logo__note--1 {
-  top: 8px;
-  right: 12px;
-  animation-delay: 0s;
-}
-
-.moodi-logo__note--2 {
-  bottom: 16px;
-  left: 8px;
-  animation-delay: -1s;
-  font-size: 0.85rem;
-  opacity: 0.3;
-}
-
-.moodi-logo__note--3 {
-  top: 30%;
-  right: -4px;
-  animation-delay: -2s;
-  font-size: 0.75rem;
-  opacity: 0.25;
+.moodi-logo__img:hover {
+  transform: scale(1.04);
+  box-shadow:
+    0 0 0 8px rgba(209, 176, 237, 0.35),
+    0 12px 40px rgba(180, 120, 230, 0.28);
 }
 
 /* ── Subtitle ── */
 .moodi-logo__subtitle {
-  margin-top: 16px;
+  margin-top: 18px;
   font-size: 0.85rem;
   color: var(--text-muted);
   letter-spacing: 0.05em;
@@ -107,16 +43,12 @@
 /* ── Responsive ── */
 @media (max-width: 480px) {
   .moodi-logo {
-    margin: 24px 0 24px;
+    margin: 20px 0 20px;
   }
 
-  .moodi-logo__circle {
-    width: 140px;
-    height: 140px;
-  }
-
-  .moodi-logo__text {
-    font-size: 1.6rem;
+  .moodi-logo__img {
+    width: 168px;
+    height: 168px;
   }
 
   .moodi-logo__subtitle {
